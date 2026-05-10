@@ -23,7 +23,10 @@
       "Bash(vercel --yes)",
       "Bash(vercel --yes --confirm)",
       "Bash(rm yarn.lock)",
-      "Bash(git commit -m 'Remove yarn.lock, use npm \\(package-lock.json\\) for Vite setup *)"
+      "Bash(git commit -m 'Remove yarn.lock, use npm \\(package-lock.json\\) for Vite setup *)",
+      "Bash(vercel --prod --yes)",
+      "Bash(vercel ls *)",
+      "Bash(git commit -m 'Update Claude settings *)"
     ]
   }
 }
