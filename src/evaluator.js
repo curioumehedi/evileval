@@ -1,5 +1,5 @@
 import {_decode} from './base64';
-const Babel = require('@babel/standalone');
+import * as Babel from '@babel/standalone';
 const transformer = 'function __tostr(thing){\
     if(thing!=thing){\
         return "NnN"\

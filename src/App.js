@@ -1,5 +1,5 @@
 import React,{Component} from 'react';
-import {colors} from './ values';
+import {colors} from './values';
 import EvilEditor from './theeditor';
 import favicon from './assets/favicon.png';
 import {_encode,_decode} from './base64';
@@ -12,17 +12,18 @@ import iconOn from './assets/toggle-on.svg';
 import iconOff from './assets/toggle-off.svg';
 /*CORE */
 import evaluate from './evaluator';
-import Conditional from 'react-simple-conditional';
+
 let _jst = function(ob){
     return JSON.stringify(ob);
 }
-// RENDER LIST
+
 function Output(props){
     return (<div
     style={{...props.style,...styles.resultParts,backgroundColor:(props.index%2)?'rgba(255,255,255,0.1)':'rgba(0,0,0,0.1)'}}>
         {props.children}
     </div>)
 }
+
 class App extends Component {
     state = {
         horizontal:true,
@@ -38,15 +39,12 @@ class App extends Component {
         babel:true
     }
     componentDidMount(){
-        // Mobile check
         if(window.innerWidth<window.innerHeight){
             this.setState({horizontal:false,fontSize:14})
         }
-        //iFrame?
         if(window.self !== window.top){
             this.setState({embedded:true,fontSize:14});
         }
-        //take care of the code in the URL
         let hash = window.location.hash;
         if(!hash) return true;
         let rex = /\/s\/(.+)/ig;
@@ -59,7 +57,7 @@ class App extends Component {
         try{
             _code = JSON.parse(_code);
             code  = _code.code;
-            babel = _code.babel; 
+            babel = _code.babel;
         }catch(e){
             console.log("Old Embed without babel information");
         }finally{
@@ -104,11 +102,9 @@ class App extends Component {
         else{
             return false;
         }
-        // Using the old API for maximum compatibility
         target.focus();
         target.select();
         document.execCommand('copy');
-        console.log("Copied");
     }
     doEval=async (code)=>{
         this.setState({code})
@@ -117,24 +113,22 @@ class App extends Component {
         if(outputData && outputData.data){
             this.setState({outputData})
         }
-        else{
-            console.log(outputData);
-        }
     }
     toggleBabel=()=>{
         this.setState({babel:!this.state.babel});
         this.evaluateCode(this.state.code);
     }
-    render() { 
+    render() {
+        const {embedded, horizontal, babel, fontSize, outputData, showEmbedWindow, code} = this.state;
         return ( <div className="container" style={{height:'100%',display:'flex',flexDirection:'column'}}>
             {/* HEADER */}
             <div className="header" style={styles.header}>
                 <img style={{height:30}} src={favicon} alt="EvilEval Icon"/>
-                <Conditional condition={!this.state.embedded} className="logoname" style={{marginLeft:10,fontFamily:'monospace',fontSize:`1.1em`}}>{`{evileval}`}</Conditional>
+                {!embedded && <div className="logoname" style={{marginLeft:10,fontFamily:'monospace',fontSize:`1.1em`}}>{`{evileval}`}</div>}
                 <div style={{flex:1}}></div>
                 <div className="toolbar" style={styles.toolbar}>
-                    <Conditional condition={!this.state.embedded} style={styles.toolholder}>
-                        <select name="fontSize" defaultValue={this.state.fontSize} onChange={this.changeFontSize} style={{...styles.tool}}>
+                    {!embedded && <div style={styles.toolholder}>
+                        <select name="fontSize" defaultValue={fontSize} onChange={this.changeFontSize} style={{...styles.tool}}>
                             <option value="14">14px</option>
                             <option value="16">16px</option>
                             <option value="24">24px</option>
@@ -143,72 +137,70 @@ class App extends Component {
                             <option value="38">38px</option>
                             <option value="42">42px</option>
                         </select>
-                    </Conditional>
-                    <Conditional condition={!this.state.embedded}
-                    onClick={this.toggleBabel}
-                     style={{...styles.toolholder}}>
+                    </div>}
+                    {!embedded && <div onClick={this.toggleBabel} style={{...styles.toolholder}}>
                         <img src={babelIcon} style={{height:20,transform:`translateY(2px)`}} alt="Babel"></img>
-                        <img src={this.state.babel?iconOn:iconOff} 
-                        style={{...styles.tool,transform:'scale(1.9)',marginLeft:10}} 
+                        <img src={babel?iconOn:iconOff}
+                        style={{...styles.tool,transform:'scale(1.9)',marginLeft:10}}
                         alt="babelState"></img>
-                    </Conditional>
-                    <Conditional condition={!this.state.embedded} style={styles.toolholder}>
-                        <img 
-                        style={{...styles.tool,transform:`rotate(${this.state.horizontal?'0':'90'}deg) scale(0.8)`}} 
+                    </div>}
+                    {!embedded && <div style={styles.toolholder}>
+                        <img
+                        style={{...styles.tool,transform:`rotate(${horizontal?'0':'90'}deg) scale(0.8)`}}
                         src={splitIcon} alt="splitIcon"
-                        onClick={e=>this.setState({horizontal:!this.state.horizontal})}/>
-                    </Conditional>
-                    <Conditional condition={!this.state.embedded}style={styles.toolholder}>
-                        <img src={shareSVG} 
+                        onClick={e=>this.setState({horizontal:!horizontal})}/>
+                    </div>}
+                    {!embedded && <div style={styles.toolholder}>
+                        <img src={shareSVG}
                         onClick={e=>this.setState({showEmbedWindow:true})}
                         style={{...styles.tool,transform:`scale(1.14)`}} alt="Share"/>
-                    </Conditional>
-                    <Conditional condition={!this.state.embedded} style={styles.toolholder}>
+                    </div>}
+                    {!embedded && <div style={styles.toolholder}>
                         <a style={{display:`block`}} rel="noopener noreferrer" href="https://evileval.io" target="_blank">
-                            <img src={githubIcon} 
-                            style={{...styles.tool,transform:`scale(1)`}} alt="Share"/>
+                            <img src={githubIcon}
+                            style={{...styles.tool,transform:`scale(1)`}} alt="GitHub"/>
                         </a>
-                    </Conditional>
-                    <Conditional condition={this.state.embedded}>
-                        <a style={{display:`block`}} rel="noopener noreferrer" href={`https://evileval.io/#/s/${_encode(_jst({code:this.state.code,babel:this.state.babel}))}`} target="_blank">
-                            <img src={shareSVG} 
-                            style={{...styles.tool,transform:`scale(1)`}} alt="Share"/>
-                        </a>
-                    </Conditional>
+                    </div>}
+                    {embedded && <a style={{display:`block`}} rel="noopener noreferrer" href={`https://evileval.io/#/s/${_encode(_jst({code,babel}))}`} target="_blank">
+                        <img src={shareSVG}
+                        style={{...styles.tool,transform:`scale(1)`}} alt="Share"/>
+                    </a>}
                 </div>
             </div>
             {/* BODY */}
-            <div className="container" 
-            style={{...styles.container,transition:`all 0.5s`,flex:1,flexDirection:`${this.state.horizontal?'row':'column'}`}}>
-                <EvilEditor value={this.state.code} onChange={this.evaluateCode} fontSize={this.state.fontSize} 
-                style={{transition:`all 0.5s`,flex:1,height:'auto',width:`${this.state.horizontal?'auto':'100%'}`}}></EvilEditor>
+            <div className="container"
+            style={{...styles.container,transition:`all 0.5s`,flex:1,flexDirection:`${horizontal?'row':'column'}`}}>
+                <EvilEditor value={code} onChange={this.evaluateCode} fontSize={fontSize}
+                style={{transition:`all 0.5s`,flex:1,height:'auto',width:`${horizontal?'auto':'100%'}`}}></EvilEditor>
                 <div className="resultview"
-                style={{transition:`all 0.5s`,...styles.result,fontSize:`${this.state.fontSize}px`,...getBorder(this.state.horizontal)}}>
-                    {this.state.outputData.data.map((d,i)=><Output style={{color:`${this.state.outputData.error?colors.RED:colors.WHITE}`}} key={i} index={i}>{d}</Output>)}
+                style={{transition:`all 0.5s`,...styles.result,fontSize:`${fontSize}px`,...getBorder(horizontal)}}>
+                    {outputData.data.map((d,i)=><Output style={{color:`${outputData.error?colors.RED:colors.WHITE}`}} key={i} index={i}>{d}</Output>)}
                 </div>
             </div>
             {/* EMBED WINDOW */}
-            <Conditional style={styles.embedw} condition={this.state.showEmbedWindow}>
+            {showEmbedWindow && <div style={styles.embedw}>
                 <div style={styles.embedholder}>
                     <p style={{marginTop:15}}>Link to this eval <span style={styles.copybtn} onClick={e=>this.copy('url')}>Copy</span></p>
-                    <input value={`https://evileval.io/#/s/${_encode(_jst({code:this.state.code,babel:this.state.babel}))}`}
-                    ref={r=>this.urlref = r} style={styles.embfields}></input>
+                    <input value={`https://evileval.io/#/s/${_encode(_jst({code,babel}))}`}
+                    ref={r=>this.urlref = r} style={styles.embfields} readOnly></input>
                     <p style={{marginTop:15}}>Embed Code of this eval <span style={styles.copybtn} onClick={e=>this.copy('embed')}>Copy</span></p>
                     <textarea ref={r=>this.embedref = r}
                     style={{...styles.embfields,height:'5em'}}
-                    value={`<iframe width="100%" height="250px" src="https://evileval.io/#/s/${_encode(_jst({code:this.state.code,babel:this.state.babel}))}"></iframe>`}></textarea>
+                    readOnly
+                    value={`<iframe width="100%" height="250px" src="https://evileval.io/#/s/${_encode(_jst({code,babel}))}"></iframe>`}></textarea>
                     <div style={{marginTop:20,textAlign:'right'}}>
                         <div style={styles.closebutton} onClick={e=>this.setState({showEmbedWindow:false})}>
                             Close
                         </div>
                     </div>
                 </div>
-            </Conditional>
+            </div>}
         </div> );
     }
 }
- 
+
 export default App;
+
 function getBorder(horiz){
     if(horiz) return {
         borderLeft:`2px solid ${colors.BLUE}`,
@@ -218,6 +210,7 @@ function getBorder(horiz){
        borderTop:`2px solid ${colors.BLUE}`,
     }
 }
+
 const styles = {
     header:{
         display:'flex',

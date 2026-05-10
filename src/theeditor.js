@@ -1,7 +1,8 @@
 import React from 'react';
 import AceEditor from 'react-ace';
-import 'brace/mode/javascript';
-import 'brace/theme/monokai';
+import 'ace-builds/src-noconflict/mode-javascript';
+import 'ace-builds/src-noconflict/theme-monokai';
+
 function EvilEditor(props){
     return (<AceEditor
         mode="javascript"
@@ -9,7 +10,6 @@ function EvilEditor(props){
         name="evileval"
         style={props.style}
         value={props.value}
-        // onLoad={props.onLoad}
         onChange={props.onChange}
         fontSize={props.fontSize||20}
         showPrintMargin={true}
